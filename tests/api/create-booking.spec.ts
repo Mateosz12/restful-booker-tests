@@ -1,6 +1,8 @@
+import { APIResponse } from '@playwright/test';
 import { test, expect } from '../../src/fixtures/test';
+import { BookingClient } from '../../src/api/bookingClient';
 import { buildBooking } from '../../src/utils/dataFactory';
-import { BookingSummary, CreatedBooking, ReportEntry } from '../../src/models/booking';
+import { Booking, BookingSummary, CreatedBooking, ReportEntry } from '../../src/models/booking';
 
 /**
  * Escenario 1 (parametrizado x2) — API exitosa:
@@ -20,6 +22,26 @@ const datasets = [
     { tc: 'TC-BOOK-01b', roomid: 2, depositpaid: false, label: 'Double sin depósito' },
 ];
 
+/**
+ * En ambiente compartido (la demo la usan miles), una reserva puede devolver 409 si
+ * las fechas aleatorias solapan con un booking ajeno — es la regla de negocio real
+ * (`checkForBookingConflict`). Reintentamos hasta 3 veces con datos nuevos: el retry
+ * actúa sobre la GENERACIÓN del dato de prueba, nunca sobre la aserción del contrato.
+ */
+async function createWithFreshData(
+    bookingClient: BookingClient,
+    roomid: number,
+    overrides: Partial<Booking>,
+): Promise<{ res: APIResponse; booking: Booking }> {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+        const booking = buildBooking({ roomid, ...overrides });
+        const res = await bookingClient.create(booking);
+        if (res.status() !== 409) return { res, booking };
+    }
+    const booking = buildBooking({ roomid, ...overrides });
+    return { res: await bookingClient.create(booking), booking };
+}
+
 test.describe('BOOK — creación y consulta de reservas (API)', () => {
     test.describe.configure({ timeout: 30_000 });
 
@@ -28,12 +50,11 @@ test.describe('BOOK — creación y consulta de reservas (API)', () => {
             bookingClient,
             authedBookingClient,
         }) => {
-            const booking = buildBooking({
-                roomid: data.roomid,
-                depositpaid: data.depositpaid,
-            });
-
-            const createRes = await bookingClient.create(booking);
+            const { res: createRes, booking } = await createWithFreshData(
+                bookingClient,
+                data.roomid,
+                { depositpaid: data.depositpaid },
+            );
             expect(
                 createRes.status(),
                 `POST /api/booking debe responder 201 — body: ${await createRes.text()}`,
