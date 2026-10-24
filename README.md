@@ -121,4 +121,6 @@ exit code — el reporte HTML queda como artefacto.
 
 ## Tiempo invertido y pendientes
 
-*(completar al cierre)* — Alcance mínimo priorizado sobre extras.
+Tiempo invertido aprox: **~3 h** (sondeo de contrato, harness, specs API, skill,
+TC-BOOK-10 con agente, diagnóstico BUG-001 con fix, documentación).
+Pendientes de entrega detallados: [`docs/pendientes.md`](docs/pendientes.md).
