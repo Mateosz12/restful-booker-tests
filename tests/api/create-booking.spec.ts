@@ -33,8 +33,11 @@ async function createWithFreshData(
     roomid: number,
     overrides: Partial<Booking>,
 ): Promise<{ res: APIResponse; booking: Booking }> {
-    for (let attempt = 1; attempt <= 3; attempt++) {
-        const booking = buildBooking({ roomid, ...overrides });
+    // Preferimos la room del dataset; si persiste el 409 probamos las demás
+    // (en la demo compartida la room 1 acumula reservas de otros usuarios).
+    const rooms = [roomid, 1, 2, 3].filter((r, i, a) => a.indexOf(r) === i);
+    for (let attempt = 0; attempt < 8; attempt++) {
+        const booking = buildBooking({ roomid: rooms[attempt % rooms.length], ...overrides });
         const res = await bookingClient.create(booking);
         if (res.status() !== 409) return { res, booking };
     }
