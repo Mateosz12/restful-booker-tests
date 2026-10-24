@@ -61,7 +61,7 @@ dependencia entre tests; credenciales solo desde `.env`. Convenciones completas 
 | Escenario | Spec | Estado |
 |---|---|---|
 | API exitosa: crear y consultar reserva (parametrizado ×2) | `tests/api/create-booking.spec.ts` — TC-BOOK-01a/b | ✅ |
-| Consulta por id: `GET /api/booking/{id}` | TC-BOOK-02 | ⏸ `test.fixme` — endpoint 500 en el ambiente (CVO-02) |
+| Consulta por id: `GET /api/booking/{id}` | TC-BOOK-02 | ✅ en local · ⏸ `fixme` condicional en demo (CVO-02) |
 | API negativa: campo ausente/inválido + no-creación (×2) | `tests/api/create-booking-negative.spec.ts` — TC-BOOK-03/04 | ✅ |
 | API negativa: `depositpaid` ausente debe rechazarse | TC-BOOK-05 | ⚠ `test.fail` — bug del contrato documentado (CVO-06) |
 | Integrado UI+API: reservar por UI, confirmar, consultar por API | `tests/e2e/booking-ui-api.spec.ts` — TC-BOOK-10 | ✅ implementado por agente vía skill — verde en instancia local corregida; en demo bloqueado por BUG-001 |

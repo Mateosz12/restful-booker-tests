@@ -61,7 +61,7 @@ entre pruebas.
 |----|-----------|------|-----------|--------|
 | TC-BOOK-01a | Crear reserva (Single, con depósito) y consultarla vía summary + report | API | Alta | ✅ automatizado |
 | TC-BOOK-01b | Crear reserva (Double, sin depósito) y consultarla | API | Alta | ✅ automatizado |
-| TC-BOOK-02 | `GET /api/booking/{id}` devuelve registro completo | API | Alta | ⏸ fixme — env 500 (CVO-02) |
+| TC-BOOK-02 | `GET /api/booking/{id}` devuelve registro completo | API | Alta | ✅ local · ⏸ fixme condicional en demo — env 500 (CVO-02) |
 | TC-BOOK-03 | Rechazo sin `firstname` (400 + errors) + no-creación | API neg | Alta | ✅ automatizado |
 | TC-BOOK-04 | Rechazo con `phone` <11 dígitos (400 + errors) + no-creación | API neg | Alta | ✅ automatizado |
 | TC-BOOK-05 | Rechazo sin `depositpaid` (contrato: 400) | API neg | Alta | ⚠ test.fail — bug CVO-06 |
