@@ -5,6 +5,7 @@
   "description": "API + UI test suite for Restful Booker Platform — Playwright Test, TypeScript, POM + API clients",
   "scripts": {
     "test": "playwright test",
+    "health": "tsx scripts/healthcheck.ts",
     "test:api": "playwright test tests/api",
     "test:e2e": "playwright test tests/e2e",
     "test:smoke": "playwright test --grep @smoke",
@@ -16,6 +17,7 @@
     "@playwright/test": "^1.56.1",
     "@types/node": "^24.0.0",
     "dotenv": "^16.4.5",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.0"
   }
 }

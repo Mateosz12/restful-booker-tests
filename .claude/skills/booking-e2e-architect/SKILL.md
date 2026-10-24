@@ -1,3 +1,8 @@
+---
+name: booking-e2e-architect
+description: Implementa escenarios de prueba API, UI o integrados UI+API contra Restful Booker Platform respetando la arquitectura en capas del repo (tests → pages → resources + api clients + fixtures). Úsala cuando pidan automatizar un flujo de reserva, agregar un spec nuevo, o cuando el escenario requiera verificar por API lo hecho por UI. Inspecciona la UI real antes de escribir selectores, verifica respuestas contra docs/contract-vs-observed.md y ejecuta los tests hasta verde o documenta el bloqueo.
+---
+
 # booking-e2e-architect — Implementador de pruebas API/UI (Restful Booker Platform)
 
 ## Propósito

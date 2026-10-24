@@ -28,6 +28,11 @@ La validación de env vars requeridas ocurre en `playwright.config.ts` al arranc
 | `npm run test:smoke` | tests etiquetados `@smoke` | idem |
 | `npm run test:regression` | tests etiquetados `@regression` | idem |
 | `npm run report` | abre el reporte HTML (`playwright-report/`) | — |
+| `npm run health` | **pre-flight**: sondea endpoints críticos del ambiente | 0 sano · 1 degradado |
+
+`npm run health` detecta en ~5 s si el ambiente está degradado (p.ej. `GET /api/room/{id}`
+en 500) antes de correr la suite — evita depurar fallos masivos que son del ambiente.
+Correrlo antes de `npm test`; la decisión de cambiar de ambiente (`BASE_URL`) es manual.
 
 Los tests corren con `workers: 2` (ver `playwright.config.ts`) y son independientes entre sí:
 cada uno siembra su propia reserva con fechas/rooms que no solapan (un solape daría 409 real).
@@ -59,7 +64,31 @@ dependencia entre tests; credenciales solo desde `.env`. Convenciones completas 
 | Consulta por id: `GET /api/booking/{id}` | TC-BOOK-02 | ⏸ `test.fixme` — endpoint 500 en el ambiente (CVO-02) |
 | API negativa: campo ausente/inválido + no-creación (×2) | `tests/api/create-booking-negative.spec.ts` — TC-BOOK-03/04 | ✅ |
 | API negativa: `depositpaid` ausente debe rechazarse | TC-BOOK-05 | ⚠ `test.fail` — bug del contrato documentado (CVO-06) |
-| Integrado UI+API: reservar por UI, confirmar, consultar por API | `tests/e2e/` | ⏳ pendiente — implementado por agente vía la skill |
+| Integrado UI+API: reservar por UI, confirmar, consultar por API | `tests/e2e/booking-ui-api.spec.ts` — TC-BOOK-10 | ✅ implementado por agente vía skill — verde en instancia local corregida; en demo bloqueado por BUG-001 |
+
+## Evidencia de uso de la skill por un agente
+
+- **Invocación**: skill `booking-e2e-architect` (`.claude/skills/`) — commit `3de3cc0`
+  anterior a su uso; el escenario TC-BOOK-10 se implementó siguiendo su flujo
+  (contextualizar → inspeccionar con Playwright MCP → generar → verificar).
+- **Cambios producidos por el agente**: `homeUI.ts`, `reservationUI.ts`, `homePage.ts`,
+  `reservationPage.ts`, `tests/e2e/booking-ui-api.spec.ts`.
+- **Ejecución**: `BASE_URL=http://localhost npx playwright test` → 6 passed, 1 skipped
+  (fixme documentado), exit 0, workers=2. Contra la demo: TC-BOOK-10 rojo en la consulta
+  por id — discrepancia documentada (BUG-001), aserción no debilitada.
+- **Correcciones tras revisión humana** (justificadas):
+  1. El flujo inicial entraba por la home vía "Book now", que fija fechas por defecto
+     (hoy/mañana) ignorando los datos sintéticos → se cambió a `/reservation/{id}?checkin=
+     &checkout=` directo, la URL que la propia app genera. Sin la corrección, el test
+     verificaba la reserva equivocada.
+  2. Aserción de año débil (`/2027/`) reemplazada por las fechas ISO exactas que la UI
+     confirma (`YYYY-MM-DD - YYYY-MM-DD`).
+  3. `email`/`phone` no se asertan en `GET /booking/{id}`: el servicio no los devuelve
+     al leer (CVO-07, causa raíz en el código fuente) — se asertó el contrato real,
+     no el ideal.
+- **Bugs encontrados en el proceso**: BUG-001 (rewrites horneadas a localhost en el
+  build — con fix verificado) y BUG-002 (`depositpaid` nullable violado). Reportes
+  completos en `docs/bugs/`.
 
 ## Uso de la skill por un agente
 
@@ -80,8 +109,15 @@ exit code — el reporte HTML queda como artefacto.
 
 ## Casos priorizados y bugs
 
+- Plan de pruebas (alcance, escenarios, riesgos): [`docs/test-plan.md`](docs/test-plan.md)
 - Casos documentados no automatizados: [`docs/casos-priorizados.md`](docs/casos-priorizados.md)
-- Bugs / discrepancias con pasos, esperado y observado: [`docs/contract-vs-observed.md`](docs/contract-vs-observed.md)
+- Propuestas de 3 skills adicionales: [`docs/propuestas-skills.md`](docs/propuestas-skills.md)
+- Bugs / discrepancias con pasos, esperado y observado:
+  [`docs/contract-vs-observed.md`](docs/contract-vs-observed.md) +
+  reportes en [`docs/bugs/`](docs/bugs/) (BUG-001 ambiente, BUG-002 bug de código)
+- Instancia local como contingencia: la suite corre contra cualquier instancia vía
+  `BASE_URL` (p.ej. `http://localhost` con el `docker-compose` del repo fuente —
+  requiere compilar los JARs con JDK 26 antes, ver `build_locally` del repo fuente).
 
 ## Tiempo invertido y pendientes
 
