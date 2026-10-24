@@ -90,16 +90,6 @@ dependencia entre tests; credenciales solo desde `.env`. Convenciones completas 
   build — con fix verificado) y BUG-002 (`depositpaid` nullable violado). Reportes
   completos en `docs/bugs/`.
 
-## Uso de la skill por un agente
-
-La skill `booking-e2e-architect` guía la implementación del escenario integrado UI+API.
-Evidencia del proceso (invocación, cambios, ejecución, correcciones humanas) en
-[`docs/evidencias/`](docs/evidencias/) y en el historial de commits: **la skill fue commiteada
-antes de usarse** (`git log` lo muestra).
-
-- Invocación: *(completar tras la corrida)*
-- Correcciones humanas aplicadas y por qué: *(completar tras la revisión)*
-
 ## Gates de smoke y regresión
 
 Los tags `@smoke`/`@regression` permiten conectar la suite a gates sin Azure ni despliegue:
