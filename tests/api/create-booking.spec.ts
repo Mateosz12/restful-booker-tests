@@ -102,14 +102,15 @@ test.describe('BOOK — creación y consulta de reservas (API)', () => {
     // GET /api/booking/{id}: según contrato y código fuente (BookingService.getIndividualBooking)
     // debe responder 200 con el booking completo (autenticado) o 404 si no existe.
     // Observado 2026-10-23: 500 para ids existentes e inexistentes, con y sin auth.
-    // fixme solo en la demo degradada — en la instancia local (BUG-001 corregido)
-    // sí corre y debe pasar. Ver docs/contract-vs-observed.md (CVO-02).
-    test.fixme(
-        (process.env.BASE_URL ?? '').includes('automationintesting.online'),
-    );
+    // Skipped only in the degraded demo — in the local instance (BUG-001 fixed)
+    // it runs and must pass. See docs/contract-vs-observed.md (CVO-02).
     test(
-        'TC-BOOK-02 — GET /api/booking/{id} devuelve el registro completo (bloqueado en demo: 500 del ambiente)',
+        'TC-BOOK-02 — GET /api/booking/{id} devuelve el registro completo (skipped in demo: 500)',
         async ({ bookingClient, authedBookingClient }) => {
+            test.skip(
+                (process.env.BASE_URL ?? '').includes('automationintesting.online'),
+                'GET /api/booking/{id} responde 500 en la demo (CVO-02/BUG-001)',
+            );
             const booking = buildBooking({ roomid: 3 });
             const createRes = await bookingClient.create(booking);
             expect(createRes.status()).toBe(201);

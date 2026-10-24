@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker';
 import { test, expect } from '../../src/fixtures/test';
 import { buildBooking, futureDates } from '../../src/utils/dataFactory';
 import { ReservationPage } from '../../src/pages/reservationPage';
@@ -26,8 +27,11 @@ test.describe('BOOK — reserva integrada UI + API', () => {
         page,
         authedBookingClient,
     }) => {
-        const dates = futureDates(60);
-        const guest = buildBooking({ roomid: 1, bookingdates: dates });
+        // Room y ventana de fechas aleatorias: la instancia local también acumula
+        // reservas entre corridas y un solape daría 409 (regla de negocio real).
+        const dates = futureDates(120);
+        const roomid = faker.helpers.arrayElement([1, 2, 3]);
+        const guest = buildBooking({ roomid, bookingdates: dates });
 
         // Flujo UI: /reservation/{id}?checkin=&checkout= (la URL que la propia app
         // genera desde "Book now"/"Check Availability") → formulario → confirmación.
@@ -67,7 +71,9 @@ test.describe('BOOK — reserva integrada UI + API', () => {
         expect(fetched.lastname).toBe(guest.lastname);
         // CVO-07: GET /booking/{id} nunca devuelve email/phone — el constructor
         // Booking(ResultSet) del servicio no los mapea. No se asertan aquí.
-        expect(fetched.depositpaid).toBe(guest.depositpaid);
+        // depositpaid no se controla por UI (el formulario no lo expone) — se
+        // verifica contra el valor que el POST de la UI envió realmente.
+        expect(fetched.depositpaid).toBe(created.depositpaid);
         expect(fetched.bookingdates).toEqual(guest.bookingdates);
     });
 });
