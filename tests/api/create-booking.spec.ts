@@ -111,8 +111,7 @@ test.describe('BOOK — creación y consulta de reservas (API)', () => {
                 (process.env.BASE_URL ?? '').includes('automationintesting.online'),
                 'GET /api/booking/{id} responde 500 en la demo (CVO-02/BUG-001)',
             );
-            const booking = buildBooking({ roomid: 3 });
-            const createRes = await bookingClient.create(booking);
+            const { res: createRes, booking } = await createWithFreshData(bookingClient, 3, {});
             expect(createRes.status()).toBe(201);
             const created = (await createRes.json()) as CreatedBooking;
 

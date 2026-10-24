@@ -34,6 +34,33 @@ La validación de env vars requeridas ocurre en `playwright.config.ts` al arranc
 en 500) antes de correr la suite — evita depurar fallos masivos que son del ambiente.
 Correrlo antes de `npm test`; la decisión de cambiar de ambiente (`BASE_URL`) es manual.
 
+### Elegir el ambiente (`BASE_URL`)
+
+Cada corrida apunta a **un solo** ambiente — no hay fallback automático (la evidencia
+debe ser trazable: un reporte mezclando ambientes es ambiguo).
+
+```powershell
+npm test                                          # demo (valor de .env)
+
+# Instancia local docker-compose (cobertura completa, incl. TC-BOOK-10):
+$env:BASE_URL="http://localhost"; npm test
+
+# Ver el navegador (headed):
+$env:BASE_URL="http://localhost"; npm run test:e2e -- --headed
+
+# Un solo test / modo debug / modo interactivo:
+npx playwright test -g "TC-BOOK-10"
+npx playwright test --debug
+npm run test:ui
+```
+
+**Levantar la instancia local** (en el clone del repo fuente,
+`restful-booker-platform`): compilar los JARs con JDK 26
+(`build_locally`, o Maven en contenedor `maven:3.9-eclipse-temurin-26`) y luego
+`docker compose up -d --build`. Verificar con `curl http://localhost/api/room/1` → 200.
+Nota: el `assets/Dockerfile` upstream tiene el bug BUG-001 — las `ENV *_API` deben
+estar en el stage `builder` para que `/api/{svc}/{id}` funcione.
+
 Los tests corren con `workers: 2` (ver `playwright.config.ts`) y son independientes entre sí:
 cada uno siembra su propia reserva con fechas/rooms que no solapan (un solape daría 409 real).
 
